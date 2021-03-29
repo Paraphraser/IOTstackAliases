@@ -1,0 +1,142 @@
+printf "\nUseful Docker aliases:\n"
+
+if [ -e "$HOME/IOTstack/services/adguardhome" ] ; then
+
+   alias      ADGUARD_SHELL='docker exec -it adguardhome ash'
+   alias   ADGUARD_SERVICES='cd ~/IOTstack/services/adguardhome; ls'
+
+   echo "    AdGuard: ADGUARD_SHELL, ADGUARD_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/gitea" ] ; then
+
+   alias        GITEA_SHELL='docker exec -it gitea bash'
+   alias     GITEA_SERVICES='cd ~/IOTstack/services/gitea; ls'
+
+   echo "      Gitea: GITEA_SHELL, GITEA_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/grafana" ] ; then
+
+   alias      GRAFANA_SHELL='docker exec -it grafana bash'
+   alias   GRAFANA_SERVICES='cd ~/IOTstack/services/grafana; ls'
+
+   echo "    Grafana: GRAFANA_SHELL, GRAFANA_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/influxdb" ] ; then
+
+   alias             influx='docker exec -it influxdb influx -precision=rfc3339'
+   alias       INFLUX_SHELL='docker exec -it influxdb bash'
+   alias    INFLUX_SERVICES='cd ~/IOTstack/services/influxdb; ls'
+
+   echo "     Influx: influx, INFLUX_SHELL, INFLUX_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/mosquitto" ] ; then
+
+   alias    MOSQUITTO_SHELL='docker exec -it mosquitto ash'
+   alias MOSQUITTO_SERVICES='cd ~/IOTstack/services/mosquitto; ls'
+
+   echo "  Mosquitto: MOSQUITTO_SHELL, MOSQUITTO_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/nextcloud" ] ; then
+
+   alias    NEXTCLOUD_SHELL='docker exec -it nextcloud bash'
+   alias NEXTCLOUD_DB_SHELL='docker exec -it nextcloud_db bash'
+   alias NEXTCLOUD_SERVICES='cd ~/IOTstack/services/nextcloud; ls'
+
+   echo "  NextCloud: NEXTCLOUD_SHELL, NEXTCLOUD_DB_SHELL, NEXTCLOUD_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/nodered" ] ; then
+
+   alias      NODERED_SHELL='docker exec -it nodered bash'
+   alias   NODERED_SERVICES='cd ~/IOTstack/services/nodered; ls'
+
+   alias       NODERED_DATA='cd ~/IOTstack/volumes/nodered/data;ls'
+
+   echo "    NodeRed: NODERED_SHELL, NODERED_SERVICES, NODERED_DATA"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/pihole" ] ; then
+
+   alias       PIHOLE_SHELL='docker exec -it pihole bash'
+   alias    PIHOLE_SERVICES='cd ~/IOTstack/services/pihole; ls'
+
+   echo "     PiHole: PIHOLE_SHELL, PIHOLE_SERVICES"
+
+fi
+
+if [ -e "$HOME/IOTstack/services/wireguard" ] ; then
+
+   alias    WIREGUARD_SHELL='docker exec -it wireguard bash'
+   alias WIREGUARD_SERVICES='cd ~/IOTstack/services/wireguard; ls'
+
+   echo "  WireGuard: WIREGUARD_SHELL, WIREGUARD_SERVICES"
+
+fi
+
+alias                 UP='docker-compose -f ~/IOTstack/docker-compose.yml up -d'
+alias              BUILD='docker-compose -f ~/IOTstack/docker-compose.yml up --build -d'
+alias            REBUILD='docker-compose -f ~/IOTstack/docker-compose.yml build --no-cache --pull'
+alias               DOWN='docker-compose -f ~/IOTstack/docker-compose.yml down'
+alias               PULL='docker-compose -f ~/IOTstack/docker-compose.yml pull;docker images'
+alias            RESTART='docker-compose -f ~/IOTstack/docker-compose.yml restart'
+alias           IOTSTACK='cd ~/IOTstack'
+
+DPS() {
+   DPS_CMD="docker ps --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
+   while (( "$#" )); do
+      DPS_CMD="$DPS_CMD --filter name=$1"
+      shift
+   done
+   bash -c "$DPS_CMD"
+}
+
+DNET() {
+   DPS_CMD="docker ps --format \"table {{.Names}}\t{{.Ports}}\""
+   while (( "$#" )); do
+      DPS_CMD="$DPS_CMD --filter name=$1"
+      shift
+   done
+   bash -c "$DPS_CMD"
+}
+
+RECREATE() {
+
+   if [ "$#" -ne 1 ]; then
+      echo "Usage: RECREATE container"
+      return 
+   fi
+
+   docker-compose -f ~/IOTstack/docker-compose.yml stop "$1"
+   docker-compose -f ~/IOTstack/docker-compose.yml rm -f "$1"
+   docker-compose -f ~/IOTstack/docker-compose.yml up -d "$1"
+
+}
+
+TERMINATE() {
+
+   if [ "$#" -ne 1 ]; then
+      echo "Usage: TERMINATE container"
+      return
+   fi
+
+   docker-compose -f ~/IOTstack/docker-compose.yml stop "$1"
+   docker-compose -f ~/IOTstack/docker-compose.yml rm -f "$1"
+
+}
+
+echo "     Docker: DPS {<container> …}, DNET {<container> …}, IOTSTACK"
+echo "             UP {<container>}, BUILD {<container>}, REBUILD <container>"
+echo "             RECREATE <container>, RESTART <container>, TERMINATE <container>"
+echo "             DOWN, PULL"
