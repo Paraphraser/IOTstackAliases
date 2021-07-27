@@ -1,89 +1,93 @@
 printf "\nUseful Docker aliases:\n"
 
-if [ -e "$HOME/IOTstack/services/adguardhome" ] ; then
+isNamedContainer() {
+   echo $(grep -c -E "^ +container_name: $1" ~/IOTstack/docker-compose.yml)
+}
 
+if [ $(isNamedContainer adguardhome) -gt 0 ] ; then
    alias      ADGUARD_SHELL='docker exec -it adguardhome ash'
-   alias   ADGUARD_SERVICES='cd ~/IOTstack/services/adguardhome; ls'
-
-   echo "    AdGuard: ADGUARD_SHELL, ADGUARD_SERVICES"
-
+   echo "       AdGuard: ADGUARD_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/gitea" ] ; then
-
+if [ $(isNamedContainer gitea) -gt 0 ] ; then
    alias        GITEA_SHELL='docker exec -it gitea bash'
-   alias     GITEA_SERVICES='cd ~/IOTstack/services/gitea; ls'
-
-   echo "      Gitea: GITEA_SHELL, GITEA_SERVICES"
-
+   echo "         Gitea: GITEA_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/grafana" ] ; then
-
+if [ $(isNamedContainer grafana) -gt 0 ] ; then
    alias      GRAFANA_SHELL='docker exec -it grafana bash'
-   alias   GRAFANA_SERVICES='cd ~/IOTstack/services/grafana; ls'
-
-   echo "    Grafana: GRAFANA_SHELL, GRAFANA_SERVICES"
-
+   echo "       Grafana: GRAFANA_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/influxdb" ] ; then
+if [ $(isNamedContainer homeassistant) -gt 0 ] ; then
+   alias           HA_SHELL='docker exec -it homeassistant bash'
+   echo " HomeAssistant: HA_SHELL"
+fi
 
+if [ $(isNamedContainer home_assistant) -gt 0 ] ; then
+   alias           HA_SHELL='docker exec -it home_assistant bash'
+   echo " HomeAssistant: HA_SHELL"
+fi
+
+if [ $(isNamedContainer homebridge) -gt 0 ] ; then
+   alias           HB_SHELL='docker exec -it homebridge ash'
+   echo "    HomeBridge: HB_SHELL"
+fi
+
+if [ $(isNamedContainer influxdb) -gt 0 ] ; then
    alias             influx='docker exec -it influxdb influx -precision=rfc3339'
    alias       INFLUX_SHELL='docker exec -it influxdb bash'
-   alias    INFLUX_SERVICES='cd ~/IOTstack/services/influxdb; ls'
-
-   echo "     Influx: influx, INFLUX_SHELL, INFLUX_SERVICES"
-
+   echo "        Influx: influx, INFLUX_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/mosquitto" ] ; then
-
+if [ $(isNamedContainer mosquitto) -gt 0 ] ; then
    alias    MOSQUITTO_SHELL='docker exec -it mosquitto ash'
-   alias MOSQUITTO_SERVICES='cd ~/IOTstack/services/mosquitto; ls'
-
-   echo "  Mosquitto: MOSQUITTO_SHELL, MOSQUITTO_SERVICES"
-
+   echo "     Mosquitto: MOSQUITTO_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/nextcloud" ] ; then
-
+if [ $(isNamedContainer nextcloud) -gt 0 ] ; then
    alias    NEXTCLOUD_SHELL='docker exec -it nextcloud bash'
    alias NEXTCLOUD_DB_SHELL='docker exec -it nextcloud_db bash'
-   alias NEXTCLOUD_SERVICES='cd ~/IOTstack/services/nextcloud; ls'
-
-   echo "  NextCloud: NEXTCLOUD_SHELL, NEXTCLOUD_DB_SHELL, NEXTCLOUD_SERVICES"
-
+   echo "     NextCloud: NEXTCLOUD_SHELL, NEXTCLOUD_DB_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/nodered" ] ; then
-
+if [ $(isNamedContainer nodered) -gt 0 ] ; then
    alias      NODERED_SHELL='docker exec -it nodered bash'
-   alias   NODERED_SERVICES='cd ~/IOTstack/services/nodered; ls'
-
    alias       NODERED_DATA='cd ~/IOTstack/volumes/nodered/data;ls'
-
-   echo "    NodeRed: NODERED_SHELL, NODERED_SERVICES, NODERED_DATA"
-
+   echo "       NodeRed: NODERED_SHELL, NODERED_DATA"
 fi
 
-if [ -e "$HOME/IOTstack/services/pihole" ] ; then
+if [ $(isNamedContainer octoprint) -gt 0 ] ; then
+   alias    OCTOPRINT_SHELL='docker exec -it octoprint bash'
+   echo "     OctoPrint: OCTOPRINT_SHELL"
+fi
 
+if [ $(isNamedContainer pihole) -gt 0 ] ; then
    alias       PIHOLE_SHELL='docker exec -it pihole bash'
-   alias    PIHOLE_SERVICES='cd ~/IOTstack/services/pihole; ls'
-
-   echo "     PiHole: PIHOLE_SHELL, PIHOLE_SERVICES"
-
+   echo "        PiHole: PIHOLE_SHELL"
 fi
 
-if [ -e "$HOME/IOTstack/services/wireguard" ] ; then
+if [ $(isNamedContainer postgres) -gt 0 ] ; then
+   alias     POSTGRES_SHELL='docker exec -it postgres bash'
+   echo "      Postgres: POSTGRES_SHELL"
+fi
 
+if [ $(isNamedContainer telegraf) -gt 0 ] ; then
+   alias     TELEGRAF_SHELL='docker exec -it telegraf bash'
+   echo "      Telegraf: TELEGRAF_SHELL"
+fi
+
+if [ $(isNamedContainer wireguard) -gt 0 ] ; then
    alias    WIREGUARD_SHELL='docker exec -it wireguard bash'
-   alias WIREGUARD_SERVICES='cd ~/IOTstack/services/wireguard; ls'
-
-   echo "  WireGuard: WIREGUARD_SHELL, WIREGUARD_SERVICES"
-
+   echo "     WireGuard: WIREGUARD_SHELL"
 fi
+
+if [ $(isNamedContainer zigbee2mqtt) -gt 0 ] ; then
+   alias       ZIGBEE_SHELL='docker exec -it zigbee2mqtt ash'
+   echo "        Zigbee: ZIGBEE_SHELL"
+fi
+
+unset -f isNamedContainer
 
 alias                 UP='docker-compose -f ~/IOTstack/docker-compose.yml up -d'
 alias              BUILD='docker-compose -f ~/IOTstack/docker-compose.yml up --build -d'
@@ -91,7 +95,10 @@ alias            REBUILD='docker-compose -f ~/IOTstack/docker-compose.yml build 
 alias               DOWN='docker-compose -f ~/IOTstack/docker-compose.yml down'
 alias               PULL='docker-compose -f ~/IOTstack/docker-compose.yml pull;docker images'
 alias            RESTART='docker-compose -f ~/IOTstack/docker-compose.yml restart'
-alias           IOTSTACK='cd ~/IOTstack'
+alias                  I='cd ~/IOTstack; ls'
+alias                  S='cd ~/IOTstack/services; ls'
+alias                  T='cd ~/IOTstack/.templates; ls'
+alias                  V='cd ~/IOTstack/volumes; ls'
 
 DPS() {
    DPS_CMD="docker ps --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
@@ -136,7 +143,7 @@ TERMINATE() {
 
 }
 
-echo "     Docker: DPS {<container> …}, DNET {<container> …}, IOTSTACK"
-echo "             UP {<container>}, BUILD {<container>}, REBUILD <container>"
-echo "             RECREATE <container>, RESTART <container>, TERMINATE <container>"
-echo "             DOWN, PULL"
+echo "        Docker: DPS {<container> …}, DNET {<container> …}, IOTSTACK"
+echo "                UP {<container>}, BUILD {<container>}, REBUILD <container>"
+echo "                RECREATE <container>, RESTART <container>, TERMINATE <container>"
+echo "                DOWN, PULL, I, S, T, V"
