@@ -15,6 +15,34 @@ Note:
 
 * This GitHub repository used to be a [gist](https://gist.github.com/Paraphraser/7612d3c780d284a502bd1f158c5186e8). Unfortunately, the copy-and-paste method of acquiring the aliases would occasionally cause problems when the original Unix `0x0A` line-endings (LF) were replaced with DOS/Windows `0x0D 0x0A` line-endings (CR+LF). The alias file would then fail. Providing the alias file via Git should reduce the likelihood of that happening.  
 
+## Prerequistes
+
+Make sure you are running an up-to-date version of `docker-compose` (1.29.1 or later):
+
+```
+$ docker-compose version
+docker-compose version 1.29.2, build unknown
+docker-py version: 5.0.0
+CPython version: 3.7.3
+OpenSSL version: OpenSSL 1.1.1d  10 Sep 2019
+```
+
+IOTstack installs `docker-compose` using `apt install`. That results in version 1.21.0, which is obsolete, and can't be upgraded using `apt upgrade`. If you discover that version 1.21.0 is installed on your system, you can upgrade like this:
+
+```
+$ cd ~/IOTstack
+$ docker-compose down
+$ sudo apt -y remove docker-compose
+$ sudo pip3 install -U docker-compose
+```  
+
+Then logout and login again.
+
+See also:
+
+* [Installing Docker for IOTstack](https://gist.github.com/Paraphraser/d119ae81f9e60a94e1209986d8c9e42f) (gist).
+* If you run into trouble with the `pip3` command, see [scripting-iotstack-installations](https://gist.github.com/Paraphraser/d119ae81f9e60a94e1209986d8c9e42f#scripting-iotstack-installations) in that same gist.
+
 ## Installation
 
 ### Step 1
@@ -50,10 +78,10 @@ Useful Docker aliases:
         Influx: influx, INFLUX_SHELL
      Mosquitto: MOSQUITTO_SHELL
        NodeRed: NODERED_SHELL, NODERED_DATA
-        Docker: DPS {<container> …}, DNET {<container> …}, IOTSTACK
-                UP {<container>}, BUILD {<container>}, REBUILD <container>
-                RECREATE <container>, RESTART <container>, TERMINATE <container>
-                DOWN, PULL, I, S, T, V
+        Docker: BUILD     | DPS       | DNET      {<container> …}
+                PULL      | REBUILD   | RECREATE  {<container> …}
+                RESTART   | TERMINATE | UP        {<container> …}
+                DOWN, I, S, T, V
 ```
 
 If you get any error messages, go back and check your work. 
@@ -114,7 +142,7 @@ In words:
 	- Make sure you match the spelling **exactly**.Unix is case-sensitive.
 
 5. Press <kbd>esc</kbd> to exit insert mode.
-6. Press <kbd>:</kbd> to move to command mode, <kbd>w</kbd> to write the in-memory buffer to the target file, and <kbd>q</kbd> to leave "vi".
+6. Press <kbd>:</kbd> to move to command mode, <kbd>w</kbd> to write the in-memory buffer to the target file, and <kbd>q</kbd> followed by <kbd>return</kbd> to leave "vi".
 
 Use the `tail` command to confirm your editing:
 
@@ -134,34 +162,178 @@ Worst case is that you will be unable to login to the new terminal session. This
 
 In the **new** terminal session, you should expect to see the same list of aliases shown in [Step 2](#step2).
 
-## Using the aliases
+## Using the aliases and shell functions
 
 I create most of my aliases using all-caps names. I think this makes it easier for auto-completion to do its work but, it's your system, so change it if you don't like it.
 
+The key advantage of these aliases is that they work from anywhere. You don't have to `cd ~/IOTstack` first.
+
 ### General-purpose aliases and shell functions
 
-The general-purpose aliases (and functions) are the ones listed under the "Docker" heading above.
+The general-purpose aliases (and functions) are the ones listed under the "Docker" heading above. They are described here in alphabetical order.
 
-* `DPS` (`docker ps`) gets you a short-form of what is running, with the advantage that the information for each container usually fits on one line. Optional arguments limit the display to named containers. 
-* `DNET` (also `docker ps`) but with a different list of columns, focusing on the networking aspects (ports etc). Optional arguments limit the display to named containers.
-* `I` is `cd ~/IOTstack; ls`. See also `S`, `T` and `V`.
-* `UP` (`docker-compose up -d`) by itself brings up your entire stack; UP with a container name brings up just that container. Its key advantage is that it works from anywhere. You don't have to `cd ~/IOTstack` first.
-* `BUILD` (`docker-compose up -d --build`) just adds the `--build` flag to cause containers that are built with a `Dockerfile` to be re-built. Like `UP` this can either be whole-of-stack or just a named container, and runs from anywhere.
-* `REBUILD` (`docker-compose build --no-cache --pull`) is a more powerful form of `BUILD`. It requires a named container as an argument. It forces the download of any newer base image from DockerHub **and** forces the rebuild of the local image by applying the `Dockerfile`.
-* `RESTART` (`docker-compose restart`) requires a named container as an argument and sends a signal to the container to restart itself. It's closer to restarting the process inside the container than tearing down and reconstructing the container.
-* `RECREATE` is a function and requires a named container as an argument. Unlike `RESTART`, this does a full tear down and reconstruction of the container. It guarantees that what is running inside the container is the same as the image.
-* `S` is `cd ~/IOTstack/services; ls`. See also `I`, `T` and `V`.
-* `T` is `cd ~/IOTstack/.templates; ls`. See also `I`, `S` and `V`.
-* `TERMINATE` is also a function and requires a named container as an argument. It differs from `RECREATE` in that it only does a proper tear down of the container.
-* `DOWN` (`docker-compose down`) takes down your entire stack. The `down` command can't take a named container as an argument, which is why `TERMINATE` needs to exist.
-* `PULL` (`docker-compose pull` followed by `docker images`). The `pull` tells `docker-compose` to check for more-recent images on DockerHub and download any newer images:
-	* a `PULL` followed by an `UP` will update all containers which **don't** rely on Dockerfiles.
-	* Containers built from local Dockerfiles (eg Node-Red) need `REBUILD` followed by `UP`.
-* `V` is `cd ~/IOTstack/volumes; ls`. See also `I`, `S` and `T`.
+#### Alias: <a name="aliasBUILD"> `BUILD` {container …} </a>
 
-Generally, any action (eg PULL, BUILD, REBUILD) that results in a new image should be followed by an `UP`, and then one or two `docker system prune` to clean up any obsolete images.   
+```bash
+$ docker-compose up -d --build {CONTAINER …}
+```
 
-#### «container»\_SHELL alias
+* Similar to [`UP`](#aliasUP) in that it adds the `--build` flag to re-build the local images for containers that are built with a `Dockerfile`.
+* Differs from [`REBUILD`](#aliasREBUILD) in that no attempt is made to pull down any later base image from DockerHub.
+* Without arguments, every service definition in your `docker-compose.yml` that includes a `build` directive will be re-built by running its Dockerfile.
+* With a list of named containers, it restricts itself to just those containers.
+* Should usually be followed by:
+
+	```bash
+	$ docker system prune
+	```
+
+#### Function: <a name="funcDNET"> `DNET` {container …} </a>
+
+```bash
+$ docker ps --format "table {{.Names}}\t{{.Ports}}"
+```
+
+* The column list provided by the `--format` argument focuses on the container's networking aspects (ports etc).
+* Has the advantage that the information for each container usually fits on one line in the terminal window.
+* Optional arguments limit the display to named containers. Names are interpreted as wildcards.
+
+#### Alias: <a name="aliasDOWN"> `DOWN` </a>
+
+```bash
+$ docker-compose down
+```
+
+* Takes down your entire stack.
+* The `down` command can't take arguments, which is why [`TERMINATE`](#aliasTERMINATE) needs to exist.
+
+#### Function :<a name="funcDPS"> `DPS` {container …} </a>
+
+```bash
+docker ps --format "table {{.Names}}\t{{.RunningFor}}\t{{.Status}}"
+```
+
+* The column list provided by the `--format` argument focuses on whether a container is running or in a restart loop.
+* Has the advantage that the information for each container usually fits on one line in the terminal window.
+* Optional arguments limit the display to named containers. Names are interpreted as wildcards.
+
+#### Alias: <a name="aliasI"> `I` </a>
+
+```bash
+$ cd ~/IOTstack
+$ ls
+```
+
+* Changes the working directory to, and lists, the top-level IOTstack directory.
+* See also [`S`](#aliasS), [`T`](#aliasT) and [`V`](#aliasV).
+
+#### Alias: <a name="aliasPULL"> `PULL` {container …} </a>
+
+```bash
+$ docker-compose pull {CONTAINER …}
+```
+
+* Tells `docker-compose` to check for more-recent images on DockerHub and download any newer images.
+* Only applies to service definitions with an `image` directive.
+* Without arguments, it tries to pull everything in your `docker-compose.yml`.
+* With a list of named containers, it restricts itself to just those containers.
+* Should usually be followed by:
+
+	```bash
+	$ UP
+	$ docker system prune
+	```
+
+#### Alias: <a name="aliasREBUILD"> `REBUILD` {container …} </a>
+
+```bash
+$ docker-compose build --no-cache --pull {CONTAINER …}
+```
+
+* Can be thought of as a more powerful form of [`BUILD`](#aliasBUILD). It forces the download of any newer base image from DockerHub **and** forces the rebuild of the local image by applying the `Dockerfile`.
+* Without arguments, it processes all service definitions with a `build` directive.
+* With a list of named containers, it restricts itself to just those containers.
+* Should usually be followed by:
+
+	```bash
+	$ UP
+	$ docker system prune
+	$ docker system prune
+	```
+	
+	The first `prune` removes the older local image, the second `prune` the older base image.
+
+#### Alias: <a name="aliasRECREATE"> `RECREATE` {container …} </a>
+
+```bash
+$ docker-compose up -d --force-recreate {CONTAINER …}
+```
+
+* Does a full tear down and reconstruction of the container. Unlike [`RESTART`](#aliasRESTART), it guarantees that the container starts the same as the image.
+* Without arguments, it recreates all running services.
+* With a list of named containers, it restricts itself to just those containers.
+
+#### Alias: <a name="aliasRESTART"> `RESTART` {container …} </a>
+
+```bash
+$ docker-compose restart {CONTAINER …}
+```
+
+* A restart sends a signal to the container to restart itself. It's closer to restarting the process inside the container than tearing down and reconstructing the container. Unlike [`RECREATE`](#aliasRECREATE), any changes made inside the container persist.  
+* Without arguments, it restarts all running services.
+* With a list of named containers, it restricts itself to just those containers.
+
+#### Alias: <a name="aliasS"> `S` </a>
+
+```bash
+$ cd ~/IOTstack/services
+$ ls
+```
+
+* Changes the working directory to, and lists, the IOTstack *services* directory.
+* See also [`I`](#aliasI), [`T`](#aliasT) and [`V`](#aliasV).
+
+#### Alias: <a name="aliasT"> `T` </a>
+
+```bash
+$ cd ~/IOTstack/.templates
+$ ls
+```
+
+* Changes the working directory to, and lists, the IOTstack *templates* directory.
+* See also [`I`](#aliasI), [`S`](#aliasS) and [`V`](#aliasV).
+
+#### Alias: <a name="aliasTERMINATE"> `TERMINATE` {container …} </a>
+
+```bash
+$ docker-compose rm --force --stop -v {CONTAINER …}
+```
+
+* Without arguments, it terminates all running services. The difference between this form and a a [`DOWN`](#aliasDOWN) is that the latter also destroys the internal networks.
+* With a list of named containers, it restricts itself to just those containers.
+
+#### Alias: <a name="aliasUP"> `UP` {container …} </a>
+
+```bash
+$ docker-compose up -d {CONTAINER …}
+```
+
+* Without arguments, it brings up your entire stack.
+* With a list of named containers, it restricts itself to just those containers. 
+
+#### Alias: <a name="aliasV"> `V` </a>
+
+```bash
+$ cd ~/IOTstack/volumes
+$ ls
+``` 
+
+* Changes the working directory to, and lists, the IOTstack *volumes* directory.
+* See also [`I`](#aliasI), [`S`](#aliasS) and [`T`](#aliasT).
+
+### Container-specific aliases
+
+#### Alias: <a name="aliasSHELL"> `«container»\_SHELL` </a>
 
 This opens a shell within the container. For example:
 
@@ -191,9 +363,7 @@ Notes:
 
 * If you're wondering about the `-it` option on «container»\_SHELL aliases, think of it as "interactive terminal". It's really `-i` (keep STDIN connected) and `-t` (allocate a pseudo-TTY for output). It is how `docker exec` knows to wait for human interaction, and why you have to type `exit` or press <kbd>control</kbd>+<kbd>d</kbd> to get out of a container. 
 
-#### special cases
-
-##### "influx"
+#### Alias: <a name="aliasInflux"> `influx` { argument …} </a>
 
 The `influx` alias is an exception to my all-caps naming convention. It expands to:
 
@@ -203,7 +373,7 @@ $ docker exec -it influxdb influx -precision=rfc3339
 
 It has the same effect as:
 
-```bash
+```
 $ docker exec -it influxdb bash
 # influx -precision=rfc3339
 ```
@@ -230,7 +400,7 @@ $ influx -type=flux
 $ influx -database=«database name» -type=flux
 ```
 
-##### "NODERED_DATA"
+#### Alias: <a name="aliasNODEREDDATA"> `NODERED_DATA` </a>
 
 This alias expands to:
 
