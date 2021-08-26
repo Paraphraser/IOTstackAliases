@@ -1,7 +1,11 @@
 printf "\nUseful Docker aliases:\n"
 
 isNamedContainer() {
-   echo $(grep -c -E "^ +container_name: $1" ~/IOTstack/docker-compose.yml)
+   if [ -e ~/IOTstack/docker-compose.yml ] ; then
+      echo $(grep -c -E "^ +container_name: $1" ~/IOTstack/docker-compose.yml)
+   else
+      echo 0
+   fi
 }
 
 if [ $(isNamedContainer adguardhome) -gt 0 ] ; then
