@@ -33,6 +33,7 @@ IOTstack installs `docker-compose` using `apt install`. That results in version 
 $ cd ~/IOTstack
 $ docker-compose down
 $ sudo apt -y remove docker-compose
+$ [ "$(uname -m)" = "aarch64" ] && sudo apt install libffi-dev
 $ sudo pip3 install -U docker-compose
 ```  
 
