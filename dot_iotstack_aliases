@@ -97,6 +97,7 @@ alias                 UP='docker-compose -f ~/IOTstack/docker-compose.yml up -d'
 alias              BUILD='docker-compose -f ~/IOTstack/docker-compose.yml up --build -d'
 alias            REBUILD='docker-compose -f ~/IOTstack/docker-compose.yml build --no-cache --pull'
 alias               DOWN='docker-compose -f ~/IOTstack/docker-compose.yml down'
+alias              PRUNE='docker system prune -f'
 alias               PULL='docker-compose -f ~/IOTstack/docker-compose.yml pull'
 alias           RECREATE='docker-compose -f ~/IOTstack/docker-compose.yml up -d --force-recreate'
 alias            RESTART='docker-compose -f ~/IOTstack/docker-compose.yml restart'
@@ -127,4 +128,4 @@ DNET() {
 echo "        Docker: BUILD     | DPS       | DNET      {<container> …}"
 echo "                PULL      | REBUILD   | RECREATE  {<container> …}"
 echo "                RESTART   | TERMINATE | UP        {<container> …}"
-echo "                DOWN, I, S, T, V"
+echo "                DOWN, PRUNE, I, S, T, V"

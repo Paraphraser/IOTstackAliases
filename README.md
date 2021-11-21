@@ -82,7 +82,7 @@ Useful Docker aliases:
         Docker: BUILD     | DPS       | DNET      {<container> …}
                 PULL      | REBUILD   | RECREATE  {<container> …}
                 RESTART   | TERMINATE | UP        {<container> …}
-                DOWN, I, S, T, V
+                DOWN, PRUNE, I, S, T, V
 ```
 
 If you get any error messages, go back and check your work. 
@@ -227,6 +227,16 @@ $ ls
 
 * Changes the working directory to, and lists, the top-level IOTstack directory.
 * See also [`S`](#aliasS), [`T`](#aliasT) and [`V`](#aliasV).
+
+#### Alias: <a name="aliasPRUNE"> `PRUNE` </a>
+
+```bash
+$ docker system prune -f
+```
+
+* Removes stopped containers, unused networks, obsolete images and build caches.
+* The `-f` means "force" but it is closer to a `-y` in its effect in that it will not remove anything that breaks a dependency chain.
+* Often useful to call twice. The first `prune` removes local images, the second removes base images. 
 
 #### Alias: <a name="aliasPULL"> `PULL` {container …} </a>
 
