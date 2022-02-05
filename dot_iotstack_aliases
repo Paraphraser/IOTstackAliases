@@ -108,7 +108,7 @@ alias                  T='cd ~/IOTstack/.templates; ls'
 alias                  V='cd ~/IOTstack/volumes; ls'
 
 DPS() {
-   DPS_CMD="docker ps --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
+   local DPS_CMD="docker ps --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
    while (( "$#" )); do
       DPS_CMD="$DPS_CMD --filter name=$1"
       shift
@@ -117,7 +117,7 @@ DPS() {
 }
 
 DNET() {
-   DNET_CMD="docker ps --format \"table {{.Names}}\t{{.Ports}}\""
+   local DNET_CMD="docker ps --format \"table {{.Names}}\t{{.Ports}}\""
    while (( "$#" )); do
       DNET_CMD="$DNET_CMD --filter name=$1"
       shift
