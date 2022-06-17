@@ -2,7 +2,6 @@
 
 When working with [IOTstack](https://github.com/SensorsIot/IOTstack), it is useful to automate many common tasks such as:
 
-* Navigating to a container's "services" directory (eg to edit its environment file);
 * Launching a shell **inside** a container (for general nosing around);
 * Launching a specific process **inside** a container (eg the InfluxDB command line interface);
 * Executing common tasks (like "up" and "down") without having to first change your working directory to `~/IOTstack`;
@@ -15,35 +14,6 @@ Note:
 
 * This GitHub repository used to be a [gist](https://gist.github.com/Paraphraser/7612d3c780d284a502bd1f158c5186e8). Unfortunately, the copy-and-paste method of acquiring the aliases would occasionally cause problems when the original Unix `0x0A` line-endings (LF) were replaced with DOS/Windows `0x0D 0x0A` line-endings (CR+LF). The alias file would then fail. Providing the alias file via Git should reduce the likelihood of that happening.  
 
-## Prerequistes
-
-Make sure you are running an up-to-date version of `docker-compose` (1.29.1 or later):
-
-```
-$ docker-compose version
-docker-compose version 1.29.2, build unknown
-docker-py version: 5.0.0
-CPython version: 3.7.3
-OpenSSL version: OpenSSL 1.1.1d  10 Sep 2019
-```
-
-IOTstack installs `docker-compose` using `apt install`. That results in version 1.21.0, which is obsolete, and can't be upgraded using `apt upgrade`. If you discover that version 1.21.0 is installed on your system, you can upgrade like this:
-
-```
-$ cd ~/IOTstack
-$ docker-compose down
-$ sudo apt -y remove docker-compose
-$ [ "$(uname -m)" = "aarch64" ] && sudo apt install libffi-dev
-$ sudo pip3 install -U docker-compose
-```  
-
-Then logout and login again.
-
-See also:
-
-* [Installing Docker for IOTstack](https://gist.github.com/Paraphraser/d119ae81f9e60a94e1209986d8c9e42f) (gist).
-* If you run into trouble with the `pip3` command, see [scripting-iotstack-installations](https://gist.github.com/Paraphraser/d119ae81f9e60a94e1209986d8c9e42f#scripting-iotstack-installations) in that same gist.
-
 ## Installation
 
 ### Step 1
@@ -55,12 +25,23 @@ $ mkdir -p "$HOME/.local"
 $ git clone https://github.com/Paraphraser/IOTstackAliases.git "$HOME/.local/IOTstackAliases"
 ```
 
-### <a name="step2"> Step 2 </a>
+### Step 2
+
+Make sure your stack is running:
+
+```bash
+$ cd ~/IOTstack
+$ docker-compose up -d
+```
+
+> Your containers need to be up for the next step.
+
+### Step 3
 
 Test the result like this:
 
 ```bash
-$ . "$HOME/.local/IOTstackAliases/dot_iotstack_aliases"
+$ . ~/.local/IOTstackAliases/dot_iotstack_aliases
 ```
 
 Notes:
@@ -68,26 +49,31 @@ Notes:
 * The `.` followed by a space at the start of the command is called a *source* statement. It tells the shell to process the file in-line, like an `#include` statement in a programming language.
 
 	*Sourcing* a file is different to *executing* a file. If you check, you will see that `dot_iotstack_aliases` does not have execute permission. Neither does the file start with `#!/bin/bash`. This is intentional. Although you *can* add execute permission and then execute the file as a command, it will not produce the correct result. It **must** be sourced.
-	
+
 * The "dot\_" prefix on the filename is intended to remind you that the file should be *sourced*.  
 
 If you have done the first two steps correctly, you should get output like this:
 
-```bash
+```
 Useful Docker aliases:
-       Grafana: GRAFANA_SHELL
-        Influx: influx, INFLUX_SHELL
-     Mosquitto: MOSQUITTO_SHELL
-       NodeRed: NODERED_SHELL, NODERED_DATA
+        Influx: influx
+       NodeRed: NODERED_DATA
         Docker: BUILD     | DPS       | DNET      {<container> …}
                 PULL      | REBUILD   | RECREATE  {<container> …}
                 RESTART   | TERMINATE | UP        {<container> …}
                 DOWN, PRUNE, I, S, T, V
+Building /home/pi/.cache/IOTstackAliases/cache - this may take some time
+   checking mosquitto - /bin/ash
+   checking grafana - /bin/bash
+   checking influxdb - /bin/bash
+   checking nodered - /bin/bash
+   … (one line for each container that is running)
+        Shells: <CONTAINER>_SHELL (all capital letters)
 ```
 
 If you get any error messages, go back and check your work. 
 
-### Step 3
+### Step 4
 
 To apply `dot_iotstack_aliases` each time you login, add this *source* statement:
 
@@ -107,7 +93,7 @@ What's the difference? I'm glad you asked:
 
 You might be thinking, "I access my Raspberry Pi using both `ssh` and VNC so that means I should add the *source* statement to both files." Well, yes and no. There is a wrinkle. The `.profile` that you get by default already sources `.bashrc`, like this:
 
-```bash
+```
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
    # include .bashrc if it exists
@@ -151,7 +137,7 @@ Use the `tail` command to confirm your editing:
 $ tail -1 ~/.bashrc 
 ```
 
-### Step 4
+### Step 5
 
 Test your work. Do **NOT** log-out of your existing terminal session. Instead, open a new terminal session.
 
@@ -161,7 +147,49 @@ Worst case is that you will be unable to login to the new terminal session. This
 
 > This advice goes double if you ever need to edit `/etc/profile` !!
 
-In the **new** terminal session, you should expect to see the same list of aliases shown in [Step 2](#step2).
+In the **new** terminal session, you should expect to see:
+
+```
+Useful Docker aliases:
+        Influx: influx
+       NodeRed: NODERED_DATA
+        Docker: BUILD     | DPS       | DNET      {<container> …}
+                PULL      | REBUILD   | RECREATE  {<container> …}
+                RESTART   | TERMINATE | UP        {<container> …}
+                DOWN, PRUNE, I, S, T, V
+        Shells: <CONTAINER>_SHELL (all capital letters)
+```
+
+The main difference is the absence of the lines:
+
+```
+Building /home/pi/.cache/IOTstackAliases/cache - this may take some time
+   checking mosquitto - /bin/ash
+   checking grafana - /bin/bash
+   checking influxdb - /bin/bash
+   checking nodered - /bin/bash
+   … (one line for each container that is running)
+```
+
+There was no need to rebuild the alias cache because it was already present.
+
+## Updating the alias cache
+
+If you add a new container and want an alias for its shell to be available each time you login:
+
+1. Remove the cache:
+
+	```bash
+	$ rm ~/.cache/IOTstackAliases/cache
+	```
+
+2. **EITHER** logout and login again **OR** run the following command:
+
+	```bash
+	$ . ~/.local/IOTstackAliases/dot_iotstack_aliases
+	```
+
+	Both approaches will rebuild the alias cache.
 
 ## Using the aliases and shell functions
 
@@ -271,7 +299,7 @@ $ docker-compose build --no-cache --pull {CONTAINER …}
 	$ docker system prune
 	$ docker system prune
 	```
-	
+
 	The first `prune` removes the older local image, the second `prune` the older base image.
 
 #### Alias: <a name="aliasRECREATE"> `RECREATE` {container …} </a>
@@ -349,16 +377,16 @@ $ ls
 This opens a shell within the container. For example:
 
 ```bash
-$ INFLUX_SHELL
+$ INFLUXDB_SHELL
 ```
 
 expands to:
 
 ```bash
-$ docker exec -it influxdb bash
+$ docker exec -it influxdb /bin/bash
 ```
 
-Opening a shell within a container means that the next thing you see is a prompt from the shell running inside the container, and with the **container's** view of the file system. `INFLUX_SHELL` will result in a prompt like this:
+Opening a shell within a container means that the next thing you see is a prompt from the shell running inside the container, and with the **container's** view of the file system. `INFLUXDB_SHELL` will result in a prompt like this:
 
 ```bash
 root@95b20550cb8a:/#
