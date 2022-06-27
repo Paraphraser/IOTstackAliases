@@ -89,7 +89,7 @@ to one of the following files:
 What's the difference? I'm glad you asked:
 
 * `.profile` is called when you `ssh` into your Raspberry Pi but not when you open a terminal session in VNC.
-* `.bashrc` is called when you open a terminal session in VNCbut not when you `ssh`.
+* `.bashrc` is called when you open a terminal session in VNC but not when you `ssh`.
 
 You might be thinking, "I access my Raspberry Pi using both `ssh` and VNC so that means I should add the *source* statement to both files." Well, yes and no. There is a wrinkle. The `.profile` that you get by default already sources `.bashrc`, like this:
 

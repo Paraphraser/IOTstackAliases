@@ -67,35 +67,50 @@ mkdir -p "$ALIAS_CACHE_DIR"
 # does the cache exist?
 if [ ! -f "$ALIAS_CACHE" ] ; then
 
-   # no! tell the user this may take some time
-   echo "Building $ALIAS_CACHE - this may take some time"
-
-   # initialise the cache file
-   echo "# Rebuilt $(date)" >"$ALIAS_CACHE"
-
-   # fetch the list of running containers
+   # no! fetch the list of running containers
    CONTAINERS=$(curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json | jq -r '.[].Names | .[] | gsub("^/";"")')
 
-   # iterate the list
-   for CONTAINER in $CONTAINERS ; do
-      echo -n "   checking $CONTAINER - "
-      CANDIDATES=$(docker exec $CONTAINER which bash ash zsh sh) 
-      if [ $? -eq 1 ] ; then
-         FIRST=($CANDIDATES)
-         echo "$FIRST"
-         echo "alias ${CONTAINER^^}_SHELL='docker exec -it $CONTAINER $FIRST'" >>"$ALIAS_CACHE"
-      else
-         echo "no shell found"
-      fi
-   done
+   # non-empty result?
+   if [ -n "$CONTAINERS" ] ; then
+
+      # yes! tell the user this may take some time
+      echo "Building $ALIAS_CACHE - this may take some time"
+
+      # initialise the cache file
+      touch "$ALIAS_CACHE"
+      echo "# Rebuilt $(date)" >>"$ALIAS_CACHE"
+
+      # iterate the list
+      for CONTAINER in $CONTAINERS ; do
+         echo -n "   checking $CONTAINER - "
+         CANDIDATES=$(docker exec $CONTAINER which bash ash zsh sh) 
+         if [ $? -eq 1 ] ; then
+            FIRST=$(echo $CANDIDATES | cut -d " " -f 1)
+            echo "$FIRST"
+            echo "alias ${CONTAINER^^}_SHELL='docker exec -it $CONTAINER $FIRST'" >>"$ALIAS_CACHE"
+         else
+            echo "no shell found"
+         fi
+      done
+
+      echo "        Shells: <CONTAINER>_SHELL (all capital letters)" >>"$ALIAS_CACHE"
+
+   else
+
+      echo "No containers running"
+
+   fi
 
 fi
 
-# now, source the cache
-. "$ALIAS_CACHE"
+# does the cache exist now?
+if [ -f "$ALIAS_CACHE" ] ; then
+
+   # yes! source the cache
+   . "$ALIAS_CACHE"
+
+fi
 
 # clean up
 unset ALIAS_CACHE_DIR ALIAS_CACHE CONTAINERS CONTAINER CANDIDATES FIRST ALIASNAME
-
-echo "        Shells: <CONTAINER>_SHELL (all capital letters)"
 
