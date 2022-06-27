@@ -93,7 +93,7 @@ if [ ! -f "$ALIAS_CACHE" ] ; then
          fi
       done
 
-      echo "        Shells: <CONTAINER>_SHELL (all capital letters)" >>"$ALIAS_CACHE"
+      echo 'echo "        Shells: <CONTAINER>_SHELL (all capital letters)"' >>"$ALIAS_CACHE"
 
    else
 
