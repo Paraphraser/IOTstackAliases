@@ -52,9 +52,20 @@ DNET() {
    bash -c "$DNET_CMD"
 }
 
+DI() {
+   local DI_CMD="docker images"
+   if [ $# -gt 0 ] ; then DI_CMD="$DI_CMD | grep -e \"^REPOSITORY\"" ; fi
+   while (( "$#" )); do
+      DI_CMD="$DI_CMD -e \"$1\""
+      shift
+   done
+   bash -c "$DI_CMD"
+}
+
 echo "        Docker: BUILD     | DPS       | DNET      {<container> …}"
 echo "                PULL      | REBUILD   | RECREATE  {<container> …}"
 echo "                RESTART   | TERMINATE | UP        {<container> …}"
+echo "                                        DI        {<image> …}"
 echo "                DOWN, PRUNE, I, S, T, V"
 
 # define the path to the alias cache

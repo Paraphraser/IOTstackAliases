@@ -217,6 +217,17 @@ $ docker-compose up -d --build {CONTAINER …}
 	$ docker system prune
 	```
 
+#### Function: <a name="funcDI"> `DI` {image …} </a>
+
+```bash
+$ docker images { | grep -e "^REPOSITORY" { -e "image" … } }
+```
+
+When invoked:
+
+* without arguments, is a synonym for `docker images`
+* with arguments, executes `docker images` and pipes the output to `grep` to filter the header line plus one wildcard match for each argument.
+
 #### Function: <a name="funcDNET"> `DNET` {container …} </a>
 
 ```bash
