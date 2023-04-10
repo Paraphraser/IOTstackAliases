@@ -35,7 +35,7 @@ alias                  T='cd ~/IOTstack/.templates; ls'
 alias                  V='cd ~/IOTstack/volumes; ls'
 
 DPS() {
-   local DPS_CMD="docker ps --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
+   local DPS_CMD="docker ps -a --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\""
    while (( "$#" )); do
       DPS_CMD="$DPS_CMD --filter name=$1"
       shift
