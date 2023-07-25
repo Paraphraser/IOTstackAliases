@@ -355,12 +355,24 @@ $ ls
 
 #### Alias: <a name="aliasTERMINATE"> `TERMINATE` {container …} </a>
 
-```bash
-$ docker-compose rm --force --stop -v {CONTAINER …}
-```
+When `docker-compose version` evaluates:
 
-* Without arguments, it terminates all running services. The difference between this form and a a [`DOWN`](#aliasDOWN) is that the latter also destroys the internal networks.
-* With a list of named containers, it restricts itself to just those containers.
+* less than "v2.19.0", this alias expands to:
+
+	```bash
+	$ docker-compose rm --force --stop -v {CONTAINER …}
+	```
+	
+	Without arguments, it terminates all running services. With a list of named containers, it restricts itself to just those containers. In neither case does it destroy any unused internal networks.
+	
+* "v2.19.0" or later, this alias expands to:
+
+
+	```bash
+	$ docker-compose down {CONTAINER …}
+	```
+
+	Without arguments, it terminates all running services. With a list of named containers, it restricts itself to just those containers. In both cases it also destroys any unused internal networks.
 
 #### Alias: <a name="aliasUP"> `UP` {container …} </a>
 
