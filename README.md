@@ -60,8 +60,9 @@ Useful Docker aliases:
        NodeRed: NODERED_DATA
         Docker: BUILD     | DPS       | DNET      {<container> …}
                 PULL      | REBUILD   | RECREATE  {<container> …}
-                RESTART   | TERMINATE | UP        {<container> …}
-                DOWN, PRUNE, I, S, T, V
+                RESTART   | UP        | DOWN      {<container> …}
+                                        DI        {<image> …}
+                PRUNE, I, S, T, V
 Building /home/pi/.cache/IOTstackAliases/cache - this may take some time
    checking mosquitto - /bin/ash
    checking grafana - /bin/bash
@@ -155,8 +156,9 @@ Useful Docker aliases:
        NodeRed: NODERED_DATA
         Docker: BUILD     | DPS       | DNET      {<container> …}
                 PULL      | REBUILD   | RECREATE  {<container> …}
-                RESTART   | TERMINATE | UP        {<container> …}
-                DOWN, PRUNE, I, S, T, V
+                RESTART   | UP        | DOWN      {<container> …}
+                                        DI        {<image> …}
+                PRUNE, I, S, T, V
         Shells: <CONTAINER>_SHELL (all capital letters)
 ```
 
@@ -238,14 +240,14 @@ $ docker ps --format "table {{.Names}}\t{{.Ports}}"
 * Has the advantage that the information for each container usually fits on one line in the terminal window.
 * Optional arguments limit the display to named containers. Names are interpreted as wildcards.
 
-#### Alias: <a name="aliasDOWN"> `DOWN` </a>
+#### Alias: <a name="aliasDOWN"> `DOWN` {container …} </a>
 
 ```bash
-$ docker-compose down
+$ docker-compose down {CONTAINER …}
 ```
 
-* Takes down your entire stack.
-* The `down` command can't take arguments, which is why [`TERMINATE`](#aliasTERMINATE) needs to exist.
+* Without arguments, takes down your entire stack.
+* With a list of named containers, it restricts itself to just those containers. 
 
 #### Function :<a name="funcDPS"> `DPS` {container …} </a>
 
@@ -357,7 +359,7 @@ $ ls
 
 When `docker-compose version` evaluates:
 
-* less than "v2.19.0", this alias expands to:
+* less than v2.19.0, this alias expands to:
 
 	```bash
 	$ docker-compose rm --force --stop -v {CONTAINER …}
@@ -365,14 +367,7 @@ When `docker-compose version` evaluates:
 	
 	Without arguments, it terminates all running services. With a list of named containers, it restricts itself to just those containers. In neither case does it destroy any unused internal networks.
 	
-* "v2.19.0" or later, this alias expands to:
-
-
-	```bash
-	$ docker-compose down {CONTAINER …}
-	```
-
-	Without arguments, it terminates all running services. With a list of named containers, it restricts itself to just those containers. In both cases it also destroys any unused internal networks.
+* v2.19.0 or later is a synonym for [`DOWN`](#aliasDOWN).
 
 #### Alias: <a name="aliasUP"> `UP` {container …} </a>
 

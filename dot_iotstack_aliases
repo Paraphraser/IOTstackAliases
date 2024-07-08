@@ -70,9 +70,9 @@ DI() {
 
 echo "        Docker: BUILD     | DPS       | DNET      {<container> …}"
 echo "                PULL      | REBUILD   | RECREATE  {<container> …}"
-echo "                RESTART   | TERMINATE | UP        {<container> …}"
+echo "                RESTART   | UP        | DOWN      {<container> …}"
 echo "                                        DI        {<image> …}"
-echo "                DOWN, PRUNE, I, S, T, V"
+echo "                PRUNE, I, S, T, V"
 
 # define the path to the alias cache
 ALIAS_CACHE_DIR="$HOME/.cache/IOTstackAliases"
