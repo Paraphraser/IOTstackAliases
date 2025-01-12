@@ -58,18 +58,15 @@ If you have done the first two steps correctly, you should get output like this:
 Useful Docker aliases:
         Influx: influx
        NodeRed: NODERED_DATA
+   No shell alias for nodered - checking - found /bin/bash - defining NODERED_SHELL
+   No shell alias for grafana - checking - found /bin/bash - defining GRAFANA_SHELL
+   No shell alias for mosquitto - checking - found /bin/ash - defining MOSQUITTO_SHELL
+   No shell alias for influxdb - checking - found /bin/bash - defining INFLUXDB_SHELL
         Docker: BUILD     | DPS       | DNET      {<container> …}
                 PULL      | REBUILD   | RECREATE  {<container> …}
                 RESTART   | UP        | DOWN      {<container> …}
                                         DI        {<image> …}
                 PRUNE, I, S, T, V
-Building /home/pi/.cache/IOTstackAliases/cache - this may take some time
-   checking mosquitto - /bin/ash
-   checking grafana - /bin/bash
-   checking influxdb - /bin/bash
-   checking nodered - /bin/bash
-   … (one line for each container that is running)
-        Shells: <CONTAINER>_SHELL (all capital letters)
 ```
 
 If you get any error messages, go back and check your work. 
@@ -138,46 +135,13 @@ Use the `tail` command to confirm your editing:
 $ tail -1 ~/.bashrc 
 ```
 
-### Step 5
-
-Test your work. Do **NOT** log-out of your existing terminal session. Instead, open a new terminal session.
-
-> How you do this will depend on how you connect to your RPi. If you are using `ssh` then start a new `ssh` session from your host computer. If you are using VNC then launch a new terminal session from the GUI. Ditto if you have gone "all the way" and have connected a keyboard, mouse and screen to your RPi.
-
-Worst case is that you will be unable to login to the new terminal session. This is why you should never log-out of an existing terminal session until you are 100% certain that changes made to either `.bashrc` or `.profile` are working. If you can't launch a new session, you just use the existing session to track down and nail any bugs. Rinse, repeat.
-
-> This advice goes double if you ever need to edit `/etc/profile` !!
-
-In the **new** terminal session, you should expect to see:
-
-```
-Useful Docker aliases:
-        Influx: influx
-       NodeRed: NODERED_DATA
-        Docker: BUILD     | DPS       | DNET      {<container> …}
-                PULL      | REBUILD   | RECREATE  {<container> …}
-                RESTART   | UP        | DOWN      {<container> …}
-                                        DI        {<image> …}
-                PRUNE, I, S, T, V
-        Shells: <CONTAINER>_SHELL (all capital letters)
-```
-
-The main difference is the absence of the lines:
-
-```
-Building /home/pi/.cache/IOTstackAliases/cache - this may take some time
-   checking mosquitto - /bin/ash
-   checking grafana - /bin/bash
-   checking influxdb - /bin/bash
-   checking nodered - /bin/bash
-   … (one line for each container that is running)
-```
-
-There was no need to rebuild the alias cache because it was already present.
-
 ## Updating the alias cache
 
-If you add a new container and want an alias for its shell to be available each time you login:
+If you add a new container, an alias for its shell will be added to the cache automatically the next time you login.
+
+## Recreating the alias cache
+
+You can always start over from scratch, like this:
 
 1. Remove the cache:
 

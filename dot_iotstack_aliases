@@ -68,66 +68,50 @@ DI() {
    bash -c "$DI_CMD"
 }
 
+# define the path to the alias cache
+ALIAS_CACHE_DIR="$HOME/.cache/IOTstackAliases"
+ALIAS_CACHE="${ALIAS_CACHE_DIR}/cache"
+
+# ensure the directory exists
+mkdir -p "${ALIAS_CACHE_DIR}"
+
+# source the cache if it exists, otherwise ensure it exists
+[ -f "${ALIAS_CACHE}" ] && . "${ALIAS_CACHE}" || touch "${ALIAS_CACHE}"
+
+# fetch the list of running containers
+CONTAINERS=$(curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json | jq -r '.[].Names | .[] | gsub("^/";"")')
+
+# non-empty result?
+if [ -n "${CONTAINERS}" ] ; then
+	# iterate the list of running containers
+	for CONTAINER in ${CONTAINERS} ; do
+		# form the alias name
+		ALIAS_NAME=${CONTAINER^^}_SHELL
+		# does an alias already exist?
+		if [ "$(type -t "${ALIAS_NAME}")" != "alias" ] ; then
+			# no! need to create one
+			echo -n "   No shell alias for ${CONTAINER} - checking - "
+			CANDIDATES=$(docker exec ${CONTAINER} which bash ash zsh sh) 
+			if [ $? -eq 1 ] ; then
+				FIRST=$(echo ${CANDIDATES} | cut -d " " -f 1)
+				echo "found ${FIRST} - defining ${ALIAS_NAME}"
+				echo "alias ${ALIAS_NAME}='docker exec -it ${CONTAINER} ${FIRST}'" >>"${ALIAS_CACHE}"
+				alias ${ALIAS_NAME}="docker exec -it ${CONTAINER} ${FIRST}"
+			else
+				echo "no shell found"
+			fi
+		fi
+	done
+else
+	echo "No containers running"
+fi
+
+# clean up
+unset ALIAS_CACHE_DIR ALIAS_CACHE CONTAINERS CONTAINER ALIAS_NAME CANDIDATES FIRST
+
 echo "        Docker: BUILD     | DPS       | DNET      {<container> …}"
 echo "                PULL      | REBUILD   | RECREATE  {<container> …}"
 echo "                RESTART   | UP        | DOWN      {<container> …}"
 echo "                                        DI        {<image> …}"
 echo "                PRUNE, I, S, T, V"
-
-# define the path to the alias cache
-ALIAS_CACHE_DIR="$HOME/.cache/IOTstackAliases"
-ALIAS_CACHE="$ALIAS_CACHE_DIR/cache"
-
-# ensure the directory exists
-mkdir -p "$ALIAS_CACHE_DIR"
-
-# does the cache exist?
-if [ ! -f "$ALIAS_CACHE" ] ; then
-
-   # no! fetch the list of running containers
-   CONTAINERS=$(curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json | jq -r '.[].Names | .[] | gsub("^/";"")')
-
-   # non-empty result?
-   if [ -n "$CONTAINERS" ] ; then
-
-      # yes! tell the user this may take some time
-      echo "Building $ALIAS_CACHE - this may take some time"
-
-      # initialise the cache file
-      touch "$ALIAS_CACHE"
-      echo "# Rebuilt $(date)" >>"$ALIAS_CACHE"
-
-      # iterate the list
-      for CONTAINER in $CONTAINERS ; do
-         echo -n "   checking $CONTAINER - "
-         CANDIDATES=$(docker exec $CONTAINER which bash ash zsh sh) 
-         if [ $? -eq 1 ] ; then
-            FIRST=$(echo $CANDIDATES | cut -d " " -f 1)
-            echo "$FIRST"
-            echo "alias ${CONTAINER^^}_SHELL='docker exec -it $CONTAINER $FIRST'" >>"$ALIAS_CACHE"
-         else
-            echo "no shell found"
-         fi
-      done
-
-      echo 'echo "        Shells: <CONTAINER>_SHELL (all capital letters)"' >>"$ALIAS_CACHE"
-
-   else
-
-      echo "No containers running"
-
-   fi
-
-fi
-
-# does the cache exist now?
-if [ -f "$ALIAS_CACHE" ] ; then
-
-   # yes! source the cache
-   . "$ALIAS_CACHE"
-
-fi
-
-# clean up
-unset ALIAS_CACHE_DIR ALIAS_CACHE CONTAINERS CONTAINER CANDIDATES FIRST ALIASNAME
 
