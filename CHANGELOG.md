@@ -1,5 +1,14 @@
 # IOTstackAliases Change Summary
 
+* 2025-09-09
+
+	- silent exit if prerequisites (docker, jq) not satisfied
+	- discover and persist `docker-compose` vs `docker compose`
+	- better use of variables to facilitate future maintenance
+	- `TERMINATE` removed (deprecated 2 years ago)
+	- restructure hints displayed with aliases file is sourced
+	- general code restructure
+
 * 2025-01-12
 
 	- Now re-checks whether *running* containers have existing aliases and adds those dynamically. This means you can add a new container and you will get a `container_SHELL` alias automatically the next time you login.

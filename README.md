@@ -55,18 +55,14 @@ Notes:
 If you have done the first two steps correctly, you should get output like this:
 
 ```
-Useful Docker aliases:
-        Influx: influx
-       NodeRed: NODERED_DATA
-   No shell alias for nodered - checking - found /bin/bash - defining NODERED_SHELL
-   No shell alias for grafana - checking - found /bin/bash - defining GRAFANA_SHELL
-   No shell alias for mosquitto - checking - found /bin/ash - defining MOSQUITTO_SHELL
-   No shell alias for influxdb - checking - found /bin/bash - defining INFLUXDB_SHELL
-        Docker: BUILD     | DPS       | DNET      {<container> …}
-                PULL      | REBUILD   | RECREATE  {<container> …}
-                RESTART   | UP        | DOWN      {<container> …}
-                                        DI        {<image> …}
-                PRUNE, I, S, T, V
+Useful Docker aliases and functions:
+   Influx: influx
+  NodeRed: NODERED_DATA
+   Docker: PRUNE | I | S | T | V
+           DI                             {<image> …}
+           DNET | DPS                     {<container> …}
+           BUILD | DOWN | PULL | REBUILD  {<container> …}
+           RECREATE | RESTART | UP        {<container> …}
 ```
 
 If you get any error messages, go back and check your work. 
@@ -318,20 +314,6 @@ $ ls
 
 * Changes the working directory to, and lists, the IOTstack *templates* directory.
 * See also [`I`](#aliasI), [`S`](#aliasS) and [`V`](#aliasV).
-
-#### Alias: <a name="aliasTERMINATE"> `TERMINATE` {container …} </a>
-
-When `docker-compose version` evaluates:
-
-* less than v2.19.0, this alias expands to:
-
-	```bash
-	$ docker-compose rm --force --stop -v {CONTAINER …}
-	```
-	
-	Without arguments, it terminates all running services. With a list of named containers, it restricts itself to just those containers. In neither case does it destroy any unused internal networks.
-	
-* v2.19.0 or later is a synonym for [`DOWN`](#aliasDOWN).
 
 #### Alias: <a name="aliasUP"> `UP` {container …} </a>
 

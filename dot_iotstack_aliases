@@ -1,75 +1,80 @@
-printf "\nUseful Docker aliases:\n"
+# silent exit if minimum dependencies not satisfied
+[ -z "$(which docker)" -o -z "$(which jq)" ] && return
 
+printf "\nUseful Docker aliases and functions:\n"
+
+COMPOSE_HOME="${COMPOSE_HOME:-${HOME}/IOTstack}"
+COMPOSE_FILE="${COMPOSE_HOME}/docker-compose.yml"
+
+# internal function
 isNamedContainer() {
-   if [ -e ~/IOTstack/docker-compose.yml ] ; then
-      echo $(grep -c -E "^ +container_name: $1" ~/IOTstack/docker-compose.yml)
-   else
-      echo 0
-   fi
+	if [ -e "${COMPOSE_FILE}" ] ; then
+		echo $(grep -c -E "^ +container_name: ${1}" "${COMPOSE_FILE}")
+	else
+		echo 0
+	fi
 }
 
+# influx alias if influxdb is known
 if [ $(isNamedContainer influxdb) -gt 0 ] ; then
-   alias             influx='docker exec -it influxdb influx -precision=rfc3339'
-   echo "        Influx: influx"
+	alias influx='docker exec -it influxdb influx -precision=rfc3339'
+	echo "   Influx: influx"
 fi
 
+# NODERED_DATA alias if nodered is known
 if [ $(isNamedContainer nodered) -gt 0 ] ; then
-   alias       NODERED_DATA='cd ~/IOTstack/volumes/nodered/data;ls'
-   echo "       NodeRed: NODERED_DATA"
+	alias NODERED_DATA='cd ${COMPOSE_HOME}/volumes/nodered/data;ls'
+	echo "  NodeRed: NODERED_DATA"
 fi
 
 unset -f isNamedContainer
 
-alias                 UP='docker-compose -f ~/IOTstack/docker-compose.yml up -d'
-alias              BUILD='docker-compose -f ~/IOTstack/docker-compose.yml up --build -d'
-alias            REBUILD='docker-compose -f ~/IOTstack/docker-compose.yml build --no-cache --pull'
-alias               DOWN='docker-compose -f ~/IOTstack/docker-compose.yml down'
-alias              PRUNE='docker system prune -f'
-alias               PULL='docker-compose -f ~/IOTstack/docker-compose.yml pull'
-alias           RECREATE='docker-compose -f ~/IOTstack/docker-compose.yml up -d --force-recreate'
-alias            RESTART='docker-compose -f ~/IOTstack/docker-compose.yml restart'
-
-if [[ "v$(docker-compose version --short)" < "v2.19.0" ]] ; then
-   alias       TERMINATE='docker-compose -f ~/IOTstack/docker-compose.yml rm --force --stop -v'
-else
-   alias       TERMINATE='docker-compose -f ~/IOTstack/docker-compose.yml down'
-fi
-
-alias                  I='cd ~/IOTstack; ls'
-alias                  S='cd ~/IOTstack/services; ls'
-alias                  T='cd ~/IOTstack/.templates; ls'
-alias                  V='cd ~/IOTstack/volumes; ls'
-
+# docker ps subset - process focus
 DPS() {
-   local DPS_CMD="docker ps -a --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\t{{.Size}}\""
-   while (( "$#" )); do
-      DPS_CMD="$DPS_CMD --filter name=$1"
-      shift
-   done
-   bash -c "$DPS_CMD"
+	local DPS_CMD="docker ps -a --format \"table {{.Names}}\t{{.RunningFor}}\t{{.Status}}\t{{.Size}}\""
+	while (( "$#" )); do
+		DPS_CMD="${DPS_CMD} --filter name=${1}"
+		shift
+	done
+	bash -c "${DPS_CMD}"
 }
 
+# docker ps subset - network focus
 DNET() {
-   local DNET_CMD="docker ps --format \"table {{.Names}}\t{{.Ports}}\""
-   while (( "$#" )); do
-      DNET_CMD="$DNET_CMD --filter name=$1"
-      shift
-   done
-   bash -c "$DNET_CMD"
+	local DNET_CMD="docker ps --format \"table {{.Names}}\t{{.Ports}}\""
+	while (( "$#" )); do
+		DNET_CMD="${DNET_CMD} --filter name=${1}"
+		shift
+	done
+	bash -c "${DNET_CMD}"
 }
 
+# docker images filter
 DI() {
-   local DI_CMD="docker images"
-   if [ $# -gt 0 ] ; then DI_CMD="$DI_CMD | grep -e \"^REPOSITORY\"" ; fi
-   while (( "$#" )); do
-      DI_CMD="$DI_CMD -e \"$1\""
-      shift
-   done
-   bash -c "$DI_CMD"
+	local DI_CMD="docker images"
+	if [ $# -gt 0 ] ; then DI_CMD="${DI_CMD} | grep -e \"^REPOSITORY\"" ; fi
+	while (( "$#" )); do
+		DI_CMD="${DI_CMD} -e \"${1}\""
+	shift
+	done
+	bash -c "${DI_CMD}"
 }
+
+# fixed aliases
+alias PRUNE='docker system prune -f'
+alias I="cd ${COMPOSE_HOME}; ls"
+alias S="cd ${COMPOSE_HOME}/services; ls"
+alias T="cd ${COMPOSE_HOME}/.templates; ls"
+alias V="cd ${COMPOSE_HOME}/volumes; ls"
+
+cat <<-COMMON
+   Docker: PRUNE | I | S | T | V
+           DI                             {<image> …}
+           DNET | DPS                     {<container> …}
+COMMON
 
 # define the path to the alias cache
-ALIAS_CACHE_DIR="$HOME/.cache/IOTstackAliases"
+ALIAS_CACHE_DIR="${HOME}/.cache/IOTstackAliases"
 ALIAS_CACHE="${ALIAS_CACHE_DIR}/cache"
 
 # ensure the directory exists
@@ -77,6 +82,40 @@ mkdir -p "${ALIAS_CACHE_DIR}"
 
 # source the cache if it exists, otherwise ensure it exists
 [ -f "${ALIAS_CACHE}" ] && . "${ALIAS_CACHE}" || touch "${ALIAS_CACHE}"
+
+# have we discovered docker-compose vs docker compose?
+if [ -z "${DOCKER_COMPOSE}" ] ; then
+
+	# no! find appropriate form of docker-compose
+	if [ -n "$(docker compose version 2>/dev/null)" ] ; then
+		DOCKER_COMPOSE="docker compose"
+		echo "DOCKER_COMPOSE=\"${DOCKER_COMPOSE}\"" >>"${ALIAS_CACHE}"
+	elif [ -n "$(docker-compose version 2>/dev/null)" ] ; then
+		DOCKER_COMPOSE="docker-compose"
+		echo "DOCKER_COMPOSE=\"${DOCKER_COMPOSE}\"" >>"${ALIAS_CACHE}"
+	else
+		DOCKER_COMPOSE=""
+	fi
+	
+fi
+
+# compose-related aliases
+if [ -n "${DOCKER_COMPOSE}" -a -f "${COMPOSE_FILE}" ] ; then
+
+	alias    BUILD="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up --build -d"
+	alias     DOWN="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" down"
+	alias     PULL="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" pull"
+	alias  REBUILD="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" build --no-cache --pull"
+	alias RECREATE="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up -d --force-recreate"
+	alias  RESTART="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" restart"
+	alias       UP="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up -d"
+
+	cat <<-COMPOSE
+	           BUILD | DOWN | PULL | REBUILD  {<container> …}
+	           RECREATE | RESTART | UP        {<container> …}
+	COMPOSE
+
+fi
 
 # fetch the list of running containers
 CONTAINERS=$(curl -s --unix-socket /var/run/docker.sock http://localhost/containers/json | jq -r '.[].Names | .[] | gsub("^/";"")')
@@ -106,12 +145,7 @@ else
 	echo "No containers running"
 fi
 
+
 # clean up
-unset ALIAS_CACHE_DIR ALIAS_CACHE CONTAINERS CONTAINER ALIAS_NAME CANDIDATES FIRST
-
-echo "        Docker: BUILD     | DPS       | DNET      {<container> …}"
-echo "                PULL      | REBUILD   | RECREATE  {<container> …}"
-echo "                RESTART   | UP        | DOWN      {<container> …}"
-echo "                                        DI        {<image> …}"
-echo "                PRUNE, I, S, T, V"
-
+unset ALIAS_CACHE ALIAS_CACHE_DIR ALIAS_NAME CANDIDATES \
+      COMPOSE_FILE COMPOSE_HOME CONTAINER CONTAINERS DOCKER_COMPOSE FIRST
