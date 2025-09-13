@@ -1,5 +1,11 @@
 # IOTstackAliases Change Summary
 
+* 2025-09-13
+
+	- fix long-standing logic bug in shell discovery. Was testing for rc=1 on assumption no container would include all four shells.
+
+		> The exception proving the rule was the Home Assistant `addon_a0d7b954_ssh` container.
+
 * 2025-09-09
 
 	- silent exit if prerequisites (docker, jq) not satisfied

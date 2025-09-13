@@ -131,7 +131,10 @@ if [ -n "${CONTAINERS}" ] ; then
 			# no! need to create one
 			echo -n "   No shell alias for ${CONTAINER} - checking - "
 			CANDIDATES=$(docker exec ${CONTAINER} which bash ash zsh sh) 
-			if [ $? -eq 1 ] ; then
+			# rc=0 if all four candidates found
+			# rc=1 if zero..three candidates found (hence -n "${CANDIDATES}")
+			# rc=127 if operation failed
+			if [ $? -le 1 -a -n "${CANDIDATES}" ] ; then
 				FIRST=$(echo ${CANDIDATES} | cut -d " " -f 1)
 				echo "found ${FIRST} - defining ${ALIAS_NAME}"
 				echo "alias ${ALIAS_NAME}='docker exec -it ${CONTAINER} ${FIRST}'" >>"${ALIAS_CACHE}"
