@@ -100,7 +100,7 @@ if [ -z "${DOCKER_COMPOSE}" ] ; then
 fi
 
 # compose-related aliases
-if [ -n "${DOCKER_COMPOSE}" -a -f "${COMPOSE_FILE}" ] ; then
+if [ -n "${DOCKER_COMPOSE}" ] ; then
 
 	alias    BUILD="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up --build -d"
 	alias     DOWN="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" down"

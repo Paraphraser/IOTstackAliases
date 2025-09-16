@@ -1,5 +1,9 @@
 # IOTstackAliases Change Summary
 
+* 2025-09-16
+
+	- remove conditional check for `docker-compose`-related aliases which were not being created if `~/IOTstack/docker-compose.yml` did not exist. Although aliases like `UP` will not actually work if the compose file is missing, the check creates a chicken-and-egg problem on clean installs. A subsequent *restore from backup* or a *menu run* will create the initial compose file but aliases like `UP` will still not work until `dot_iotstack_aliases` is sourced again (eg logout, login). This is suboptimal.
+
 * 2025-09-13
 
 	- fix long-standing logic bug in shell discovery. Was testing for rc=1 on assumption no container would include all four shells.
