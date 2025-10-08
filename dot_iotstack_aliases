@@ -137,11 +137,13 @@ if [ -n "${CONTAINERS}" ] ; then
 			if [ $? -le 1 -a -n "${CANDIDATES}" ] ; then
 				FIRST=$(echo ${CANDIDATES} | cut -d " " -f 1)
 				echo "found ${FIRST} - defining ${ALIAS_NAME}"
-				echo "alias ${ALIAS_NAME}='docker exec -it ${CONTAINER} ${FIRST}'" >>"${ALIAS_CACHE}"
-				alias ${ALIAS_NAME}="docker exec -it ${CONTAINER} ${FIRST}"
+				ALIAS="alias ${ALIAS_NAME}='docker exec -it ${CONTAINER} ${FIRST}'"
 			else
 				echo "no shell found"
+				ALIAS="alias ${ALIAS_NAME}='echo \"no shell in container\"'"
 			fi
+			echo "${ALIAS}" >>"${ALIAS_CACHE}"
+			eval ${ALIAS}
 		fi
 	done
 else
@@ -150,5 +152,5 @@ fi
 
 
 # clean up
-unset ALIAS_CACHE ALIAS_CACHE_DIR ALIAS_NAME CANDIDATES \
+unset ALIAS ALIAS_CACHE ALIAS_CACHE_DIR ALIAS_NAME CANDIDATES \
       COMPOSE_FILE COMPOSE_HOME CONTAINER CONTAINERS DOCKER_COMPOSE FIRST
