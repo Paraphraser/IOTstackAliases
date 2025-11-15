@@ -51,7 +51,7 @@ DNET() {
 
 # docker images filter
 DI() {
-	local DI_CMD="docker images"
+	local DI_CMD="docker images -a"
 	if [ $# -gt 0 ] ; then DI_CMD="${DI_CMD} | grep -e \"^REPOSITORY\"" ; fi
 	while (( "$#" )); do
 		DI_CMD="${DI_CMD} -e \"${1}\""
