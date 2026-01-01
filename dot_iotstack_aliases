@@ -4,10 +4,10 @@
 printf "\nUseful Docker aliases and functions:\n"
 
 COMPOSE_HOME="${COMPOSE_HOME:-${HOME}/IOTstack}"
-COMPOSE_FILE="${COMPOSE_HOME}/docker-compose.yml"
 
 # internal function
 isNamedContainer() {
+	local COMPOSE_FILE="${COMPOSE_HOME}/docker-compose.yml"
 	if [ -e "${COMPOSE_FILE}" ] ; then
 		echo $(grep -c -E "^ +container_name: ${1}" "${COMPOSE_FILE}")
 	else
@@ -102,17 +102,18 @@ fi
 # compose-related aliases
 if [ -n "${DOCKER_COMPOSE}" ] ; then
 
-	alias    BUILD="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up --build -d"
-	alias     DOWN="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" down"
-	alias     PULL="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" pull"
-	alias  REBUILD="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" build --no-cache --pull"
-	alias RECREATE="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up -d --force-recreate"
-	alias  RESTART="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" restart"
-	alias       UP="${DOCKER_COMPOSE} -f "${COMPOSE_FILE}" up -d"
+	alias    BUILD="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" up --build -d"
+	alias   CONFIG="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" config"
+	alias     DOWN="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" down"
+	alias     PULL="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" pull"
+	alias  REBUILD="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" build --no-cache --pull"
+	alias RECREATE="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" up -d --force-recreate"
+	alias  RESTART="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" restart"
+	alias       UP="${DOCKER_COMPOSE} --project-directory "${COMPOSE_HOME}" up -d"
 
 	cat <<-COMPOSE
-	           BUILD | DOWN | PULL | REBUILD  {<container> …}
-	           RECREATE | RESTART | UP        {<container> …}
+	           BUILD | CONFIG | DOWN | PULL       {<container> …}
+	           REBUILD | RECREATE | RESTART | UP  {<container> …}
 	COMPOSE
 
 fi
@@ -153,4 +154,4 @@ fi
 
 # clean up
 unset ALIAS ALIAS_CACHE ALIAS_CACHE_DIR ALIAS_NAME CANDIDATES \
-      COMPOSE_FILE COMPOSE_HOME CONTAINER CONTAINERS DOCKER_COMPOSE FIRST
+      COMPOSE_HOME CONTAINER CONTAINERS DOCKER_COMPOSE FIRST
