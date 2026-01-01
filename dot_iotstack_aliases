@@ -69,8 +69,8 @@ alias V="cd ${COMPOSE_HOME}/volumes; ls"
 
 cat <<-COMMON
    Docker: PRUNE | I | S | T | V
-           DI                             {<image> …}
-           DNET | DPS                     {<container> …}
+           DI                                 {<image> …}
+           DNET | DPS                         {<container> …}
 COMMON
 
 # define the path to the alias cache

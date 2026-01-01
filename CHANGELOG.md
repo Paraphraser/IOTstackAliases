@@ -1,5 +1,25 @@
 # IOTstackAliases Change Summary
 
+* 2026-01-01
+
+	- All previous versions of this repo have used this basic syntax for the relevant aliases:
+    
+	    ```
+	    docker compose -f ~/IOTstack/docker-compose.yml «other arguments here»
+	    ```
+    
+    	This avoids the need to `cd` into the project directory. However, it turns out that this syntax prevents `docker-compose.override.yml` from being applied correctly. The solution is to adjust the basic syntax:
+		    
+		```
+		docker compose --project-directory ~/IOTstack «other arguments here»
+		```
+    
+	- Because it is useful to be able to preview the effect of applying override files, a `CONFIG` alias has been added which invokes:
+
+		```
+		docker compose --project-directory ~/IOTstack config {«container»...}
+		```
+
 * 2025-09-16
 
 	- remove conditional check for `docker-compose`-related aliases which were not being created if `~/IOTstack/docker-compose.yml` did not exist. Although aliases like `UP` will not actually work if the compose file is missing, the check creates a chicken-and-egg problem on clean installs. A subsequent *restore from backup* or a *menu run* will create the initial compose file but aliases like `UP` will still not work until `dot_iotstack_aliases` is sourced again (eg logout, login). This is suboptimal.

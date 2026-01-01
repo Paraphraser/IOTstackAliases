@@ -59,10 +59,10 @@ Useful Docker aliases and functions:
    Influx: influx
   NodeRed: NODERED_DATA
    Docker: PRUNE | I | S | T | V
-           DI                             {<image> …}
-           DNET | DPS                     {<container> …}
-           BUILD | DOWN | PULL | REBUILD  {<container> …}
-           RECREATE | RESTART | UP        {<container> …}
+           DI                                 {<image> …}
+           DNET | DPS                         {<container> …}
+           BUILD | CONFIG | DOWN | PULL       {<container> …}
+           REBUILD | RECREATE | RESTART | UP  {<container> …}
 ```
 
 If you get any error messages, go back and check your work. 
@@ -178,6 +178,20 @@ $ docker-compose up -d --build {CONTAINER …}
 	```bash
 	$ docker system prune
 	```
+
+#### Alias: <a name="aliasCONFIG"> `CONFIG` {container …} </a>
+
+```bash
+$ docker-compose config {CONTAINER …}
+```
+
+* Merges `docker-compose.yml` and `docker-compose.override.yml` (if present), and displays the parsed result as it will be implemented.
+* Without arguments, every service definition will be displayed.
+* With a list of named containers, it restricts itself to just those containers.
+* This is good for checking the effect of override files but you need to be aware that the result will:
+
+	- usually have both service definitions and clauses in a completely different order that the input files; and
+	- where a clause supports both a simple and complex structure, this command will display the complex structure.
 
 #### Function: <a name="funcDI"> `DI` {image …} </a>
 
