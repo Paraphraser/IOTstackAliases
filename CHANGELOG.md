@@ -1,5 +1,13 @@
 # IOTstackAliases Change Summary
 
+* 2026-01-11
+
+	- Changes to `DI`:
+
+		- silence pointless "This output is designed for human readability" warning
+		- primary column heading has changed from `REPOSITORY` to `IMAGE`
+		- prefer `eval` over `bash -c`. 
+
 * 2026-01-01
 
 	- All previous versions of this repo have used this basic syntax for the relevant aliases:

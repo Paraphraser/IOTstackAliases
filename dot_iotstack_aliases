@@ -36,7 +36,7 @@ DPS() {
 		DPS_CMD="${DPS_CMD} --filter name=${1}"
 		shift
 	done
-	bash -c "${DPS_CMD}"
+	eval "${DPS_CMD}"
 }
 
 # docker ps subset - network focus
@@ -46,18 +46,18 @@ DNET() {
 		DNET_CMD="${DNET_CMD} --filter name=${1}"
 		shift
 	done
-	bash -c "${DNET_CMD}"
+	eval "${DNET_CMD}"
 }
 
 # docker images filter
 DI() {
 	local DI_CMD="docker images -a"
-	if [ $# -gt 0 ] ; then DI_CMD="${DI_CMD} | grep -e \"^REPOSITORY\"" ; fi
+	if [ $# -gt 0 ] ; then DI_CMD="${DI_CMD} | grep -e \"^IMAGE\"" ; fi
 	while (( "$#" )); do
 		DI_CMD="${DI_CMD} -e \"${1}\""
 	shift
 	done
-	bash -c "${DI_CMD}"
+	eval "${DI_CMD}" 2>/dev/null
 }
 
 # fixed aliases
