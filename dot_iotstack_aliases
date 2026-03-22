@@ -23,7 +23,7 @@ fi
 
 # NODERED_DATA alias if nodered is known
 if [ $(isNamedContainer nodered) -gt 0 ] ; then
-	alias NODERED_DATA='cd ${COMPOSE_HOME}/volumes/nodered/data;ls'
+	alias NODERED_DATA="cd ${COMPOSE_HOME}/volumes/nodered/data;ls"
 	echo "  NodeRed: NODERED_DATA"
 fi
 

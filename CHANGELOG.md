@@ -1,5 +1,9 @@
 # IOTstackAliases Change Summary
 
+* 2026-03-22
+
+	- Fix quotes on `NODERED_DATA` alias.
+
 * 2026-01-11
 
 	- Changes to `DI`:
